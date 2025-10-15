@@ -22,8 +22,8 @@ func getCommands() map[string]cliCommand{
 	},
 	"help": {
 		name:			"help",
-		description:	"Displays help message",
-		callback:		commandHelp,
+		description:	"Displays a help message",
+		
 	},
 	}
 }
@@ -32,6 +32,10 @@ func getCommands() map[string]cliCommand{
 func startRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
 	cmds := getCommands()
+	if help, ok := cmds["help"]; ok {
+		help.callback = makeHelp(cmds)
+		cmds["help"] = help
+	}
 
 	for {
 		fmt.Print("Pokedex > ")
@@ -70,11 +74,15 @@ func commandExit() error {
 	return nil
 }
 
-func commandHelp() error {
+func commandHelp(cmds map[string]cliCommand) error {
 	fmt.Println("Welcome to the Pokedex!")
-	fmt.Println("Usage: ")
+	fmt.Println("Usage:")
 	fmt.Println()
-	fmt.Println("help: Displays a help message")
-	fmt.Println("exit: Exit the Pokedex")
+	for _, cmd := range cmds {
+		fmt.Printf("%s: %s\n", cmd.name, cmd.description)
+	}
 	return nil
 } 
+func makeHelp(cmds map[string]cliCommand) func() error {
+	return func() error {return commandHelp(cmds)}
+}
