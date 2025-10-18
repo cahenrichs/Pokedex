@@ -2,32 +2,37 @@ package pokeapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
 
 func fetchLocationAreas(url string) (LocationAreaList, error) {
-	url := baseURL + "/location-area" + 
-	resp, err := http.Get(url)
+	url = baseURL + "/location-area" 
+	if pageURL !- nil {
+		url = *pageURL
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err !- nil {
+		return RespShallowLocations{}, err
+	}
+
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return LocationAreaList{}, err
+		return RespShallowLocations{}, err
 	}
 
-	defer.Body.Close()
-	
-	if resp.Statusode != http.StatusOK {
-		return LocationAreaList{}, fmt.Errorf("bad status %d", resp.StatusCode)
-	}
+	defer resp.Body.Close
 
-	data,err := io.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return LocationAreaList{}, err
+		return RespShallowLocations{}, err
 	}
 
-	var out LocationAreaList
-	if err := json.Unmarshal(data, &out); err != nil {
-		return LocationAreaList{}, err
-	}
-	return out, nil
+	locationResp := RespShallowLocations{}
+	err = json.Unmarshal(data, &locationResp)
+	if err != nil {
+		return RespShallowLocations{} err
+	} 
+	return locationResp, nil
 }

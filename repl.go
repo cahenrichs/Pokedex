@@ -5,12 +5,19 @@ import (
 	"bufio"
 	"os"
 	"fmt"
+	"github.com/cahenrichs/pokedexcli/internal/pokeapi"
 )
+
+type config struct {
+	pokeapiClient pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
+}
 
 type cliCommand struct {
 	name		string
 	description string
-	callback	func() error
+	callback	func(*config) error
 }
 
 func getCommands() map[string]cliCommand{
@@ -27,46 +34,42 @@ func getCommands() map[string]cliCommand{
 	},
 	"map": {
 		name:			"map",
-		description:	"Displays the locations",
+		description:	"Get the next page of locations",
+		callback:		commandMapf,
 		
 	},
 	"mapb": {
 		name:			"mapb",
-		description:	"Goes back a page of locations",
-	}
+		description:	"Get the previous page of locations",
+		callback:		commandMapb
+	},
 	}
 }
 
-
-func startRepl() {
-	scanner := bufio.NewScanner(os.Stdin)
-	cmds := getCommands()
-	if help, ok := cmds["help"]; ok {
-		help.callback = makeHelp(cmds)
-		cmds["help"] = help
-	}
-
+func startRepl(cfg *config) {
+	reader := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Pokedex > ")
-		if !scanner.Scan() {
-			break
-		}
-		input := scanner.Text()
-		word := cleanInput(input)
-		if len(word) == 0 {
+		reader.Scan()
+
+		words := cleanInput(reader.Text())
+		if len(words) == 0 {
 			continue
 		}
 
-		firstWord := word[0]
-		c, ok := cmds[firstWord]
-		if !ok {
+		commandName := words[0]
+
+		command, exists := getCommands()[commandName]
+		if exists {
+			err := command.callback(cfg)
+			if err != nil {
+				fmt.Println(err)
+			}
+			continue
+		} else {
 			fmt.Println("Unknown command")
 			continue
 		}
-		if err := c.callback(); err != nil {
-			fmt.Println(err)
-		}
-
 	}
 }
 
@@ -77,21 +80,9 @@ func cleanInput(text string) []string {
 	return clean
 }
 
-func commandExit() error {
-	fmt.Println("Closing the Pokedex... Goodbye!")
-	os.Exit(0)
-	return nil
-}
 
-func commandHelp(cmds map[string]cliCommand) error {
-	fmt.Println("Welcome to the Pokedex!")
-	fmt.Println("Usage:")
-	fmt.Println()
-	for _, cmd := range cmds {
-		fmt.Printf("%s: %s\n", cmd.name, cmd.description)
-	}
-	return nil
-} 
+
+
 func makeHelp(cmds map[string]cliCommand) func() error {
 	return func() error {return commandHelp(cmds)}
 }
