@@ -6,14 +6,14 @@ import (
 	"net/http"
 )
 
-func fetchLocationAreas(url string) (LocationAreaList, error) {
-	url = baseURL + "/location-area" 
-	if pageURL !- nil {
+func(c *Client) ListLocations(pageURL *string) (RespShallowLocations, error) {
+	url := baseURL + "/location-area" 
+	if pageURL != nil {
 		url = *pageURL
 	}
 
 	req, err := http.NewRequest("GET", url, nil)
-	if err !- nil {
+	if err != nil {
 		return RespShallowLocations{}, err
 	}
 
@@ -22,7 +22,7 @@ func fetchLocationAreas(url string) (LocationAreaList, error) {
 		return RespShallowLocations{}, err
 	}
 
-	defer resp.Body.Close
+	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -32,7 +32,7 @@ func fetchLocationAreas(url string) (LocationAreaList, error) {
 	locationResp := RespShallowLocations{}
 	err = json.Unmarshal(data, &locationResp)
 	if err != nil {
-		return RespShallowLocations{} err
+		return RespShallowLocations{}, err
 	} 
 	return locationResp, nil
 }

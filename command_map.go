@@ -2,18 +2,19 @@ package main
 
 import (
 	"fmt"
+	"errors"
 )
 
 func commandMapf(cfg *config) error {
-	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationURL)
+	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL)
 	if err != nil {
 		return err
 	}
 
-	cfg.nextLocationsURL = locationResp.Next
+	cfg.nextLocationsURL = locationsResp.Next
 	cfg.prevLocationsURL = locationsResp.Previous
 
-	for _, loc := range locationResp.Results {
+	for _, loc := range locationsResp.Results {
 		fmt.Println(loc.Name)
 	}
 	return nil

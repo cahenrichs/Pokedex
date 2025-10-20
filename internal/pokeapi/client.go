@@ -6,10 +6,10 @@ import (
 )
 
 type Client struct {
-	httpClient gttp.Client
+	httpClient http.Client
 }
 
-func NewClient(timeout tume.Durration) Client {
+func NewClient(timeout time.Duration) Client {
 	return Client{
 		httpClient: http.Client{
 			Timeout: timeout,

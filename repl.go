@@ -41,7 +41,7 @@ func getCommands() map[string]cliCommand{
 	"mapb": {
 		name:			"mapb",
 		description:	"Get the previous page of locations",
-		callback:		commandMapb
+		callback:		commandMapb,
 	},
 	}
 }
@@ -83,6 +83,6 @@ func cleanInput(text string) []string {
 
 
 
-func makeHelp(cmds map[string]cliCommand) func() error {
-	return func() error {return commandHelp(cmds)}
-}
+//func makeHelp(cmds map[string]cliCommand) func() error {
+	//return func() error {return commandHelp(cmds)}
+//}
