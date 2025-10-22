@@ -2,6 +2,7 @@ package pokecache
 
 import (
 	"time"
+	"sync"
 )
 
 type Cache struct {
@@ -15,13 +16,15 @@ type cacheEntry struct {
 	val	[]byte
 }
 
-func NewCache(interval time.Duration) Cache {
-	c := Cache{
-		cache: make(map[string]cacheEntry),
-		mu: &sync.Mutex{},
-		interval:	interval,
-	}
-	go c.reapLoop()
+// go
+func NewCache(interval time.Duration) *Cache {
+    c := &Cache{
+        cache:    make(map[string]cacheEntry),
+        mu:       &sync.Mutex{},
+        interval: interval,
+    }
+    go c.reapLoop()
+    return c
 }
 
 func (c *Cache) Add(key string, value []byte) {
@@ -30,7 +33,7 @@ func (c *Cache) Add(key string, value []byte) {
 
 	c.cache[key] = cacheEntry{
 		createdAt: time.Now(),
-		val:	val,
+		val:	value,
 	}
 }
 
